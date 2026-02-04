@@ -94,38 +94,7 @@ ln -s /your/dataset/path /data/lvta/datasets/vl2lite_datasets
 python src/train_coop.py \
   --config configs/data/attributes/0_CUB_200_2011.yaml \
   --batch_size 32 \
-## 🗂️ Project Structure
 
-```
-PAND/
-├── configs/                    # Hydra configuration files
-│   ├── data/
-│   │   └── attributes/        # Dataset configs (CUB, Aircraft, etc.)
-│   ├── model/
-│   │   ├── kda.yaml          # VL2Lite baseline config
-│   │   └── coop_kd.yaml      # CoOp + NLRD config
-│   ├── trainer/               # Training configs (gpu, ddp, etc.)
-│   └── ...
-├── src/
-│   ├── data/
-│   │   ├── kd_datamodule.py          # Lightning DataModule
-│   │   └── components/
-│   │       └── kd_dataloader.py      # Dataset implementations
-│   ├── models/
-│   │   ├── kd_module.py              # Main KD training module
-│   │   ├── coop_module.py            # CoOp training module
-│   │   └── components/
-│   │       ├── campus.py             # Teacher-Student architecture
-│   │       ├── criterion.py          # Loss functions
-│   │       └── nlrd.py               # NLRD implementation
-│   ├── train.py                      # Main training script (Stage B)
-│   ├── train_coop_cub_features.py   # CoOp training (Stage A)
-│   ├── extract_image_features.py    # Pre-extract CLIP features
-│   └── eval.py                       # Evaluation script
-├── scripts/
-│   └── tsne_compare.py               # t-SNE visualization
-└── requirements.txt
-```
 
 ---
 
