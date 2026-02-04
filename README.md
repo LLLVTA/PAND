@@ -21,17 +21,6 @@ ______________________________________________________________________
 
 ---
 
-## 📋 Description
-
-**PAND** (Prompt-Augmented Neighborhood Distillation) is an advanced knowledge distillation framework that combines:
-- **CoOp** (Context Optimization): Learnable prompt tuning for vision-language models
-- **VL2Lite**: Task-specific knowledge distillation from large VLMs to lightweight networks
-- **NLRD** (Neighborhood Logits Relation Distillation): Preserving neighborhood relationships in logit space
-
-This framework enables efficient transfer of knowledge from large CLIP-based models to compact student networks (ResNet18, MobileNetV2) for fine-grained visual recognition tasks.
-
----
-
 
 ## 🚀 Installation
 
@@ -112,7 +101,7 @@ python src/train_coop_cub_features.py  # Then train
 --batch_size 16
 ```
 
-**2. NLRD Loss Causing NaN**
+**2. NLRD Loss**
 ```bash
 # Check batch size (too small batches can cause issues)
 data.batch_size=128  # Recommended minimum: 64
@@ -121,11 +110,7 @@ data.batch_size=128  # Recommended minimum: 64
 model.kd_criterion.nlrd_weight=0.5
 ```
 
-**3. Different Sample Counts in t-SNE**
-- This is caused by `drop_last=True` in DataLoader with different batch sizes
-- The script automatically handles this by taking the minimum sample count
-
-**4. ImportError for OpenCLIP**
+**3. ImportError for OpenCLIP**
 ```bash
 pip install open-clip-torch
 ```
@@ -156,41 +141,12 @@ python src/train.py \
 
 ---
 
-## 📚 Key References
-
-- **CoOp**: Learning to Prompt for Vision-Language Models (IJCV 2022)
-- **VL2Lite**: Task-Specific Knowledge Distillation from Large VLMs (CVPR 2025)
-- **NRKD**: Neighborhood Relation-based Knowledge Distillation (Pattern Recognition 2021)
-
----
-
 ## 🙏 Acknowledgments
 
 - Built upon [Lightning-Hydra-Template](https://github.com/ashleve/lightning-hydra-template)
 - CLIP models from [OpenCLIP](https://github.com/mlfoundations/open_clip)
 - Thanks to PyTorch, PyTorch Lightning, and Hydra communities
 
----
-
-## 📝 Citation
-
-If you find this work helpful, please consider citing:
-
-```bibtex
-@inproceedings{pand2025,
-  title={PAND: Prompt-Augmented Neighborhood Distillation for Fine-Grained Visual Recognition},
-  author={Your Name},
-  booktitle={Conference},
-  year={2025}
-}
-
-@inproceedings{jang2025vl2lite,
-  title={VL2Lite: Task-Specific Knowledge Distillation from Large Vision-Language Models to Lightweight Networks},
-  author={Jang, Jinseong and Ma, Chunfei and Lee, Byeongwon},
-  booktitle={CVPR},
-  year={2025}
-}
-```
 
 ---
 
@@ -204,7 +160,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   data.batch_size=128
 ```
 
-#### 2. VL2Lite + CoOp (No NLRD)
+#### 2. VL2Lite + PSC (No NLRD)
 ```bash
 python src/train.py \
   data/attributes=0_CUB_200_2011 \
@@ -219,7 +175,7 @@ python src/train.py \
   data.batch_size=128
 ```
 
-#### 3. Full Pipeline: CoOp + NLRD (Ours)
+#### 3. Full Pipeline: PSC + NSD (Ours)
 ```bash
 python src/train.py \
   data/attributes=0_CUB_200_2011 \
@@ -237,20 +193,6 @@ python src/train.py \
   data.batch_size=128
 ```
 
-#### 4. NLRD Sensitivity Analysis
-Test different λ (NLRD weight) values:
-```bash
-for lambda in 0 0.05 0.1 0.2 0.5 1.0; do
-  python src/train.py \
-    data/attributes=0_CUB_200_2011 \
-    model=coop_kd \
-    model.kd_criterion.nlrd_weight=$lambda \
-    trainer=ddp \
-    trainer.devices=4 \
-    logger=csv \
-    tags=["cub","nlrd","lambda$lambda"]
-done
-```
 
 ---
 
