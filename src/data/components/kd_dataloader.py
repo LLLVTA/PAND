@@ -343,7 +343,7 @@ class OxfordIIPetDataset(Dataset):
             for line in file:
                 img_name, label_id, _, _ = line.strip().split()
                 img_path = os.path.join(root_dir, "images", img_name + ".jpg")
-                # 使用官方的 CLASS-ID，转换为 0-indexed
+                # Use official CLASS-ID, convert to 0-indexed
                 self.image_paths.append(img_path)
                 self.labels.append(int(label_id) - 1)
         
@@ -615,7 +615,7 @@ class Caltech256Dataset(Dataset):
         assert split in ["train", "test"], "split should be either 'train' or 'test'"
         
         self.root_dir = root_dir
-        self.imgs_path = root_dir  # 直接使用 root_dir，因为类别文件夹就在根目录下
+        self.imgs_path = root_dir  # Use root_dir directly since category folders are in the root directory
         self.image_paths = []
         self.labels = []
         self.class_names = sorted([d for d in os.listdir(self.imgs_path) if os.path.isdir(os.path.join(self.imgs_path, d))])
@@ -628,7 +628,7 @@ class Caltech256Dataset(Dataset):
         # Load images and labels by class and split within each class
         for class_idx, class_name in enumerate(self.class_names):
             class_dir = os.path.join(self.imgs_path, class_name)
-            # 只加载 .jpg 文件，过滤掉子目录和其他文件
+            # Load only .jpg files, filter out subdirectories and other files
             img_files = [f for f in os.listdir(class_dir) 
                         if os.path.isfile(os.path.join(class_dir, f)) and f.lower().endswith('.jpg')]
             class_image_paths = [os.path.join(class_dir, img_name) for img_name in img_files]

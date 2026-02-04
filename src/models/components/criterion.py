@@ -14,10 +14,10 @@ class KDCriterion:
         logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / 0.07), requires_grad = False)
         self.logit_scale = logit_scale.exp()
         
-        # CoOp配置：如果使用CoOp特征，不需要class_num缩放
+        # CoOp configuration: no class_num scaling needed when using CoOp features
         self.use_coop = getattr(args, 'use_coop', False)
         
-        # NLRD配置
+        # NLRD configuration
         self.use_nlrd = getattr(args, 'use_nlrd', False)
         if self.use_nlrd:
             nlrd_k = getattr(args, 'nlrd_k', 1)
@@ -28,7 +28,7 @@ class KDCriterion:
     def __call__(self, inputs):
         hidden_features, out, clip_img_features, clip_nlp_features, aligned_img, aligned_nlp = inputs
         
-        # ===== High层: L1点对点对齐 =====
+        # ===== High-level: L1 point-to-point alignment =====
         img_loss = self.criterion_aligned_img_kd(hidden_features, aligned_img)
 
         student_nlp_logits = self.logit_scale * hidden_features @ aligned_nlp.T / self.temperature
@@ -36,18 +36,18 @@ class KDCriterion:
         kd_loss = self.criterion_nlp_kd(F.log_softmax(student_nlp_logits, dim=1),
                              F.softmax(teacher_nlp_logits, dim=1)) * (self.temperature * self.temperature)
         
-        # VL2Lite原版需要class_num缩放，但使用CoOp时不需要
+        # VL2Lite original requires class_num scaling, but not needed when using CoOp
         if not self.use_coop:
             kd_loss = kd_loss * self.args.class_num / 2
         
-        # ===== NLRD: 邻域Logits关系蒸馏 =====
+        # ===== NLRD: Neighborhood Logits Relation Distillation =====
         if self.use_nlrd:
-            # 计算teacher logits: 图像特征与文本特征的相似度
+            # Compute teacher logits: similarity between image and text features
             teacher_logits = self.logit_scale * clip_img_features @ clip_nlp_features.T
-            # 学生logits直接使用分类输出
+            # Student logits use classification output directly
             student_logits = out
             
-            # 计算NLRD损失
+            # Compute NLRD loss
             nlrd_loss = self.nlrd_criterion(student_logits, teacher_logits)
             
             return img_loss, kd_loss, nlrd_loss

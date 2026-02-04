@@ -55,7 +55,7 @@ def load_cub_classnames(config_path: str):
 
 def main():
     # ============ Configuration ============
-    # 从环境变量读取配置路径
+    # Read configuration path from environment variables
     import os
     CONFIG_PATH = os.environ.get('CONFIG_PATH', '/home/lvta/Project/VL2Lite/configs/data/attributes/1_FGVC_AIRCRAFT.yaml')
     FEATURES_PATH = os.environ.get('FEATURES_PATH', '/data/lvta/logs/vl2lite/train/runs/coop_fgvc_aircraft/features/fgvc_aircraft_clip_features.pt')
@@ -192,7 +192,7 @@ def main():
         print(f"  Train batches: {len(train_loader)}")
         print(f"  Val batches: {len(val_loader)}")
     
-    # 从CONFIG_PATH提取数据集名称
+    # Extract dataset name from CONFIG_PATH
     dataset_name = os.path.basename(CONFIG_PATH).replace('.yaml', '').replace('_', '').lower()
     
     # ============ Setup Callbacks ============

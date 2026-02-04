@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-预提取 CLIP 图像特征用于 CoOp 训练
-节省显存和训练时间
+Pre-extract CLIP image features for CoOp training
+Saves GPU memory and training time
 """
 
 import sys
@@ -35,15 +35,15 @@ def extract_features(
     num_workers: int = 4,
 ):
     """
-    提取并保存所有图像的 CLIP 特征
+    Extract and save CLIP features for all images
     
     Args:
-        clip_model_name: CLIP 模型名称
-        pretrained: 预训练权重
-        data_root: 数据集根目录
-        output_path: 输出文件路径 (.pt)
-        batch_size: 批次大小（用于提取，可以设大一些）
-        num_workers: 数据加载线程数
+        clip_model_name: CLIP model name
+        pretrained: Pretrained weights
+        data_root: Dataset root directory
+        output_path: Output file path (.pt)
+        batch_size: Batch size (for extraction, can be set larger)
+        num_workers: Number of data loading threads
     """
     print("="*60)
     print("CLIP Image Feature Extraction")
@@ -55,7 +55,7 @@ def extract_features(
     print(f"Batch size: {batch_size}")
     print("="*60 + "\n")
     
-    # 加载 CLIP 模型
+    # Load CLIP model
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Loading CLIP model on {device}...")
     
@@ -67,7 +67,7 @@ def extract_features(
     
     print("✓ Model loaded\n")
     
-    # 动态检测数据集类型
+    # Dynamically detect dataset type
     print("Detecting dataset type from data_root...")
     if 'FGVC_AIRCRAFT' in data_root or 'aircraft' in data_root.lower():
         DatasetClass = AircraftDataset
@@ -98,7 +98,7 @@ def extract_features(
     
     print(f"✓ Detected dataset: {dataset_name}\n")
     
-    # 加载数据集
+    # Load datasets
     print("Loading datasets...")
     train_dataset = DatasetClass(data_root, split='train', transform=preprocess)
     val_dataset = DatasetClass(data_root, split=val_split, transform=preprocess)
@@ -122,7 +122,7 @@ def extract_features(
     print(f"✓ Train samples: {len(train_dataset)}")
     print(f"✓ Val samples: {len(val_dataset)}\n")
     
-    # 提取训练集特征
+    # Extract training set features
     print("Extracting training features...")
     train_features = []
     train_labels = []
@@ -141,7 +141,7 @@ def extract_features(
     
     print(f"✓ Train features shape: {train_features.shape}")
     
-    # 提取验证集特征
+    # Extract validation set features
     print("\nExtracting validation features...")
     val_features = []
     val_labels = []
@@ -160,7 +160,7 @@ def extract_features(
     
     print(f"✓ Val features shape: {val_features.shape}")
     
-    # 保存特征
+    # Save features
     print(f"\nSaving features to {output_path}...")
     output_dir = Path(output_path).parent
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -187,7 +187,7 @@ def extract_features(
 if __name__ == "__main__":
     import os
     
-    # 从环境变量读取配置，如果没有则使用默认值
+    # Read configuration from environment variables, use defaults if not set
     CLIP_MODEL = os.environ.get('CLIP_MODEL', 'convnext_xxlarge')
     PRETRAINED = os.environ.get('PRETRAINED', 'laion2b_s34b_b82k_augreg_soup')
     DATA_ROOT = os.environ.get('DATA_ROOT', '/data/lvta/datasets/vl2lite_datasets/1_FGVC_AIRCRAFT')

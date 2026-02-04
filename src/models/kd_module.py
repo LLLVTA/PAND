@@ -82,7 +82,7 @@ class KDModule(LightningModule):
             self.kd_loss = MeanMetric()
             self.cls_loss = MeanMetric()
             self.img_loss = MeanMetric()
-            # 添加NLRD损失度量
+            # Add NLRD loss metric
             if hasattr(kd_criterion, 'use_nlrd') and kd_criterion.use_nlrd:
                 self.nlrd_loss = MeanMetric()
 
@@ -130,7 +130,7 @@ class KDModule(LightningModule):
         if self.use_teacher:
             outputs = self.forward(x)
             
-            # 判断是否使用NLRD
+            # Check if NLRD is enabled
             use_nlrd = hasattr(self.kd_criterion, 'use_nlrd') and self.kd_criterion.use_nlrd
             
             if use_nlrd:
@@ -145,10 +145,10 @@ class KDModule(LightningModule):
             img_loss = kd_loss_weight*img_loss
             kd_loss = kd_loss_weight*kd_loss
             
-            # 原有VL2Lite损失（不做任何修改）
+            # Original VL2Lite loss (no modifications)
             loss = cls_loss + (img_loss + kd_loss)/2
             
-            # 如果使用NLRD，应用权重后加上NLRD损失
+            # If using NLRD, apply weight and add NLRD loss
             if use_nlrd:
                 nlrd_loss = nlrd_loss * self.kd_criterion.nlrd_weight
                 loss = loss + nlrd_loss
@@ -192,7 +192,7 @@ class KDModule(LightningModule):
             self.log("train/img_loss", self.img_loss, on_step=False, on_epoch=True, prog_bar=True)
             self.log("train/kd_loss", self.kd_loss, on_step=False, on_epoch=True, prog_bar=True)
             
-            # 记录NLRD损失
+            # Log NLRD loss if enabled
             if "nlrd_loss" in loss_dicts:
                 self.nlrd_loss(loss_dicts["nlrd_loss"])
                 self.log("train/nlrd_loss", self.nlrd_loss, on_step=False, on_epoch=True, prog_bar=True)

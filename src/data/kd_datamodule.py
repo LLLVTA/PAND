@@ -143,7 +143,7 @@ class KDDataModule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            drop_last=True,  # 避免最后一个小batch导致NLRD计算失败
+            drop_last=True,  # Avoid NLRD calculation failures due to incomplete last batch
         )
 
     def test_dataloader(self) -> DataLoader[Any]:
@@ -157,7 +157,7 @@ class KDDataModule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            drop_last=True,  # 避免最后一个小batch导致NLRD计算失败
+            drop_last=True,  # Avoid NLRD calculation failures due to incomplete last batch
         )
 
     def teardown(self, stage: Optional[str] = None) -> None:
