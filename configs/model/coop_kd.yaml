@@ -1,0 +1,62 @@
+# CoOp Stage B: Knowledge Distillation with Learned Text Features
+# Teacher: CoOp learned text features (frozen)
+# Student: Lightweight visual encoder (trainable)
+
+_target_: src.models.kd_module.KDModule
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 0.0001
+  weight_decay: 0.0001
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  _partial_: true
+  T_max: 100
+  eta_min: 0.00001
+
+use_teacher: true
+
+net:
+  _target_: src.models.components.campus.TeacherStudent
+  
+  # Teacher: Use CoOp learned text features (frozen)
+  teacher: 
+    arch: convnext_xxlarge
+    pretrained: laion2b_s34b_b82k_augreg_soup
+    # CoOp text features path (will be loaded and frozen)
+    coop_text_features: /data/lvta/logs/vl2lite/train/runs/coop_cub/learned_text_features.pt
+    
+  
+  data_attributes: ${data.train_dataset.attributes}
+  
+  # Student: Lightweight visual encoder
+  student:
+    arch: resnet18  # or mobilenet_v3_small for even lighter model
+
+  use_teacher: ${model.use_teacher}
+
+kd_criterion:
+  _target_: src.models.components.criterion.KDCriterion
+  
+  # Image feature distillation (L1 loss)
+  img_criterion: 
+    _target_: torch.nn.L1Loss
+  
+  # Text logits distillation (KL divergence)
+  nlp_criterion: 
+    _target_: torch.nn.KLDivLoss
+    reduction: batchmean
+  
+  temperature: 2.0
+  class_num: ${data.train_dataset.attributes.class_num}
+  use_coop: true  # CoOp Stage B使用学习的文本特征
+  
+  # NLRD (Neighborhood Logits Relation Distillation)
+  use_nlrd: true
+  nlrd_k: 3
+  nlrd_lambda: 1.0
+  nlrd_weight: 1.0  # Balanced weight for CoOp features
+
+compile: false
